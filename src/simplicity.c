@@ -133,7 +133,7 @@ void handle_init(void) {
 
   Layer *window_layer = window_get_root_layer(window);
 
-  Layer *weather_holder = layer_create(GRect(0, 5, 144, 40));
+  Layer *weather_holder = layer_create(GRect(0, 6, 144, 40));
   layer_add_child(window_layer, weather_holder);
 
   icon_layer = bitmap_layer_create(GRect(0, 0, 40, 40));
@@ -146,7 +146,7 @@ void handle_init(void) {
   text_layer_set_text_alignment(temp_layer, GTextAlignmentRight);
   layer_add_child(weather_holder, text_layer_get_layer(temp_layer));
 
-  Layer *date_holder = layer_create(GRect(0, 53, 144, 94));
+  Layer *date_holder = layer_create(GRect(0, 52, 144, 94));
   layer_add_child(window_layer, date_holder);
 
   text_day_layer = text_layer_create(GRect(8, 0, 144-8, 25));
