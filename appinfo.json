@@ -16,66 +16,6 @@
   "resources": {
     "media": [
       {
-        "type": "png",
-        "name": "IMAGE_SUN",
-        "file": "images/01d.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_MOON",
-        "file": "images/01n.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_PARTLY_CLOUDY_SUN",
-        "file": "images/02d.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_PARTLY_CLOUDY_MOON",
-        "file": "images/02n.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_CLOUD",
-        "file": "images/03.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_CLOUDY",
-        "file": "images/04.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_RAIN",
-        "file": "images/09.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_STORM",
-        "file": "images/11.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_SNOW",
-        "file": "images/13.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_MIST_SUN",
-        "file": "images/50d.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_MIST_MOON",
-        "file": "images/50n.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_NA",
-        "file": "images/NA.png"
-      },
-      {
         "menuIcon": true,
         "type": "png",
         "name": "IMAGE_MENU_ICON",
@@ -91,6 +31,12 @@
         "type": "font",
         "name": "FONT_ROBOTO_BOLD_SUBSET_49",
         "file": "fonts/Roboto-Bold.ttf"
+      },
+      {
+        "characterRegex": "[:A-Z]",
+        "type": "font",
+        "name": "METEOCONS_38",
+        "file": "fonts/meteocons.ttf"
       }
     ]
   }

@@ -2,36 +2,36 @@
 function indexForIconName(iconName) {
   switch (iconName) {
     case "01d":
-      return 0;
+      return "B";
     case "01n":
-      return 1;
+      return "C";
     case "02d":
-      return 2;
+      return "H";
     case "02n":
-      return 3;
+      return "I";
     case "03d":
     case "03n":
-      return 4;
+      return "N";
     case "04d":
     case "04n":
-      return 5;
+      return "Y";
     case "09d":
     case "09n":
     case "10d":
     case "10n":
-      return 6;
+      return "R";
     case "11d":
     case "11n":
-      return 7;
+      return "Z";
     case "13d":
     case "13n":
-      return 8;
+      return "W";
     case "50d":
-      return 9;
+      return "J";
     case "50n":
-      return 10;
+      return "E";
     default:
-      return 11;
+      return "";
   }
 }
 
@@ -43,7 +43,7 @@ function fetchWeather(latitude, longitude) {
   req.onload = function(e) {
     if (req.readyState == 4) {
       if (req.status == 200) {
-        console.log(req.responseText);
+        //console.log(req.responseText);
         response = JSON.parse(req.responseText);
         var temperature, icon;
         if (response) {
