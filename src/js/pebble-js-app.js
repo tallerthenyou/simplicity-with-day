@@ -1,5 +1,5 @@
 
-function iconFromWeatherId(iconName) {
+function indexForIconName(iconName) {
   switch (iconName) {
     case "01d":
       return 0;
@@ -45,18 +45,16 @@ function fetchWeather(latitude, longitude) {
       if (req.status == 200) {
         console.log(req.responseText);
         response = JSON.parse(req.responseText);
-        var temperature, icon, city;
+        var temperature, icon;
         if (response) {
           temperature = Math.round((response.main.temp - 273.15) * 1.8 + 32);
-          icon = iconFromWeatherId(response.weather[0].icon);
-          city = response.name;
+          icon = indexForIconName(response.weather[0].icon);
           console.log("temp " + temperature);
           console.log("icon " + icon);
-          console.log("city " + city);
           Pebble.sendAppMessage({
             "icon":icon,
             "temperature":temperature + "\u00B0F",
-            "city":city});
+          });
         }
       } else {
         console.log("Error");
@@ -74,9 +72,8 @@ function locationSuccess(pos) {
 function locationError(err) {
   console.warn('location error (' + err.code + '): ' + err.message);
   Pebble.sendAppMessage({
-    "icon":7,
-    "temperature":"N/A",
-    "city":"Loc Unavailable"
+    "icon":11,
+    "temperature":""
   });
 }
 

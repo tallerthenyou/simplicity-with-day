@@ -3,7 +3,6 @@
 enum WeatherKey {
   WEATHER_ICON_KEY = 0x0,         // TUPLE_INT
   WEATHER_TEMPERATURE_KEY = 0x1,  // TUPLE_CSTRING
-  WEATHER_CITY_KEY = 0x2,         // TUPLE_CSTRING
 };
 
 static const uint32_t WEATHER_ICONS[] = {
@@ -71,10 +70,6 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
     case WEATHER_TEMPERATURE_KEY:
       // App Sync keeps new_tuple in sync_buffer, so we may use it directly
       text_layer_set_text(temp_layer, new_tuple->value->cstring);
-      break;
-
-    case WEATHER_CITY_KEY:
-      //text_layer_set_text(city_layer, new_tuple->value->cstring);
       break;
   }
 }
@@ -178,7 +173,6 @@ void handle_init(void) {
   Tuplet initial_values[] = {
     TupletInteger(WEATHER_ICON_KEY, (uint8_t) 11),
     TupletCString(WEATHER_TEMPERATURE_KEY, ""),
-    TupletCString(WEATHER_CITY_KEY, ""),
   };
 
   const int inbound_size = 64;
@@ -187,8 +181,6 @@ void handle_init(void) {
 
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
       sync_tuple_changed_callback, sync_error_callback, NULL);
-
-  //send_cmd();
 
   APP_LOG(APP_LOG_LEVEL_DEBUG, "Done setup");
 
