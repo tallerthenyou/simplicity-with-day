@@ -17,38 +17,58 @@
     "media": [
       {
         "type": "png",
-        "name": "IMAGE_CLOUD",
-        "file": "images/802.png"
-      },
-      {
-        "type": "png",
-        "name": "IMAGE_PARTLY_CLOUDY",
-        "file": "images/801.png"
-      },
-      {
-        "type": "png",
         "name": "IMAGE_SUN",
-        "file": "images/800.png"
+        "file": "images/01d.png"
       },
       {
         "type": "png",
-        "name": "IMAGE_FOG",
-        "file": "images/700.png"
+        "name": "IMAGE_MOON",
+        "file": "images/01n.png"
       },
       {
         "type": "png",
-        "name": "IMAGE_SNOW",
-        "file": "images/600.png"
+        "name": "IMAGE_PARTLY_CLOUDY_SUN",
+        "file": "images/02d.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_PARTLY_CLOUDY_MOON",
+        "file": "images/02n.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_CLOUD",
+        "file": "images/03.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_CLOUDY",
+        "file": "images/04.png"
       },
       {
         "type": "png",
         "name": "IMAGE_RAIN",
-        "file": "images/300.png"
+        "file": "images/09.png"
       },
       {
         "type": "png",
         "name": "IMAGE_STORM",
-        "file": "images/200.png"
+        "file": "images/11.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_SNOW",
+        "file": "images/13.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_MIST_SUN",
+        "file": "images/50d.png"
+      },
+      {
+        "type": "png",
+        "name": "IMAGE_MIST_MOON",
+        "file": "images/50n.png"
       },
       {
         "type": "png",

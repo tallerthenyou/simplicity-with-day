@@ -1,19 +1,37 @@
 
-function iconFromWeatherId(weatherId) {
-  if (weatherId >= 802) {
-    return 0;
-  } else if (weatherId >= 801) {
-    return 1;
-  } else if (weatherId >= 800) {
-    return 2;
-  } else if (weatherId >= 700) {
-    return 3;
-  } else if (weatherId >= 600) {
-    return 4;
-  } else if (weatherId >= 300) {
-    return 5;
-  } else {
-    return 6;
+function iconFromWeatherId(iconName) {
+  switch (iconName) {
+    case "01d":
+      return 0;
+    case "01n":
+      return 1;
+    case "02d":
+      return 2;
+    case "02n":
+      return 3;
+    case "03d":
+    case "03n":
+      return 4;
+    case "04d":
+    case "04n":
+      return 5;
+    case "09d":
+    case "09n":
+    case "10d":
+    case "10n":
+      return 6;
+    case "11d":
+    case "11n":
+      return 7;
+    case "13d":
+    case "13n":
+      return 8;
+    case "50d":
+      return 9;
+    case "50n":
+      return 10;
+    default:
+      return 11;
   }
 }
 
@@ -30,7 +48,7 @@ function fetchWeather(latitude, longitude) {
         var temperature, icon, city;
         if (response) {
           temperature = Math.round((response.main.temp - 273.15) * 1.8 + 32);
-          icon = iconFromWeatherId(response.weather[0].id);
+          icon = iconFromWeatherId(response.weather[0].icon);
           city = response.name;
           console.log("temp " + temperature);
           console.log("icon " + icon);

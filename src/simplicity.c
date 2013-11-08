@@ -7,13 +7,17 @@ enum WeatherKey {
 };
 
 static const uint32_t WEATHER_ICONS[] = {
-  RESOURCE_ID_IMAGE_CLOUD,
-  RESOURCE_ID_IMAGE_PARTLY_CLOUDY,
   RESOURCE_ID_IMAGE_SUN,
-  RESOURCE_ID_IMAGE_FOG,
-  RESOURCE_ID_IMAGE_SNOW,
+  RESOURCE_ID_IMAGE_MOON,
+  RESOURCE_ID_IMAGE_PARTLY_CLOUDY_SUN,
+  RESOURCE_ID_IMAGE_PARTLY_CLOUDY_MOON,
+  RESOURCE_ID_IMAGE_CLOUD,
+  RESOURCE_ID_IMAGE_CLOUDY,
   RESOURCE_ID_IMAGE_RAIN,
   RESOURCE_ID_IMAGE_STORM,
+  RESOURCE_ID_IMAGE_SNOW,
+  RESOURCE_ID_IMAGE_MIST_SUN,
+  RESOURCE_ID_IMAGE_MIST_MOON,
   RESOURCE_ID_IMAGE_NA,
 };
 
@@ -139,7 +143,7 @@ void handle_init(void) {
   icon_layer = bitmap_layer_create(GRect(0, 0, 40, 40));
   layer_add_child(weather_holder, bitmap_layer_get_layer(icon_layer));
 
-  temp_layer = text_layer_create(GRect(40, 0, 144 - 40, 40));
+  temp_layer = text_layer_create(GRect(40, 3, 144 - 40, 28));
   text_layer_set_text_color(temp_layer, GColorWhite);
   text_layer_set_background_color(temp_layer, GColorClear);
   text_layer_set_font(temp_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
@@ -172,7 +176,7 @@ void handle_init(void) {
   layer_add_child(date_holder, line_layer);
 
   Tuplet initial_values[] = {
-    TupletInteger(WEATHER_ICON_KEY, (uint8_t) 7),
+    TupletInteger(WEATHER_ICON_KEY, (uint8_t) 11),
     TupletCString(WEATHER_TEMPERATURE_KEY, ""),
     TupletCString(WEATHER_CITY_KEY, ""),
   };
