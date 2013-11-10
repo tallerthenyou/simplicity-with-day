@@ -1,11 +1,29 @@
 #include "pebble.h"
 
+static const uint32_t WEATHER_ICONS[] = {
+  RESOURCE_ID_CLEAR_DAY,
+  RESOURCE_ID_CLEAR_NIGHT,
+  RESOURCE_ID_WINDY,
+  RESOURCE_ID_COLD,
+  RESOURCE_ID_PARTLY_CLOUDY_DAY,
+  RESOURCE_ID_PARTLY_CLOUDY_NIGHT,
+  RESOURCE_ID_HAZE,
+  RESOURCE_ID_CLOUD,
+  RESOURCE_ID_RAIN,
+  RESOURCE_ID_SNOW,
+  RESOURCE_ID_HAIL,
+  RESOURCE_ID_CLOUDY,
+  RESOURCE_ID_STORM,
+  RESOURCE_ID_NA,
+};
+
 enum WeatherKey {
   WEATHER_ICON_KEY = 0x0,         // TUPLE_INT
   WEATHER_TEMPERATURE_KEY = 0x1,  // TUPLE_CSTRING
 };
 
-TextLayer *icon_layer;
+BitmapLayer *icon_layer;
+GBitmap *icon_bitmap = NULL;
 TextLayer *temp_layer;
 
 Window *window;
@@ -17,26 +35,10 @@ Layer *line_layer;
 static AppSync sync;
 static uint8_t sync_buffer[64];
 
-static void send_cmd(void) {
-  Tuplet value = TupletInteger(1, 1);
-
-  DictionaryIterator *iter;
-  app_message_outbox_begin(&iter);
-
-  if (iter == NULL) {
-    return;
-  }
-
-  dict_write_tuplet(iter, &value);
-  dict_write_end(iter);
-
-  app_message_outbox_send();
-}
-
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Sync Error: %d", app_message_error);
 
-  text_layer_set_text(icon_layer, "");
+  //text_layer_set_text(icon_layer, "");
   text_layer_set_text(temp_layer, "");
 }
 
@@ -44,7 +46,12 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
   // App Sync keeps new_tuple in sync_buffer, so we may use it directly
   switch (key) {
     case WEATHER_ICON_KEY:
-      text_layer_set_text(icon_layer, new_tuple->value->cstring);
+      if (icon_bitmap) {
+        gbitmap_destroy(icon_bitmap);
+      }
+
+      icon_bitmap = gbitmap_create_with_resource(WEATHER_ICONS[new_tuple->value->uint8]);
+      bitmap_layer_set_bitmap(icon_layer, icon_bitmap);
       break;
 
     case WEATHER_TEMPERATURE_KEY:
@@ -67,13 +74,6 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   static int pass = 0;
 
   char *time_format;
-
-  // Refresh the weather every 30 minutes.
-  pass++;
-  if (pass == 30) {
-    pass = 0;
-    send_cmd();
-  }
 
   // Only update the date when it has changed.
   if (yday != tick_time->tm_yday) {
@@ -111,15 +111,11 @@ void handle_init(void) {
 
   Layer *window_layer = window_get_root_layer(window);
 
-  Layer *weather_holder = layer_create(GRect(0, 0, 144, 40));
+  Layer *weather_holder = layer_create(GRect(0, 0, 144, 50));
   layer_add_child(window_layer, weather_holder);
 
-  icon_layer = text_layer_create(GRect(0, 0, 40, 40));
-  text_layer_set_text_color(icon_layer, GColorWhite);
-  text_layer_set_background_color(icon_layer, GColorClear);
-  text_layer_set_font(icon_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_METEOCONS_38)));
-  text_layer_set_text_alignment(icon_layer, GTextAlignmentCenter);
-  layer_add_child(weather_holder, text_layer_get_layer(icon_layer));
+  icon_layer = bitmap_layer_create(GRect(0, 0, 40, 40));
+  layer_add_child(weather_holder, bitmap_layer_get_layer(icon_layer));
 
   temp_layer = text_layer_create(GRect(40, 3, 144 - 40, 28));
   text_layer_set_text_color(temp_layer, GColorWhite);

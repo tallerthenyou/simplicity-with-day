@@ -1,56 +1,115 @@
+var CLEAR_DAY = 0;
+var CLEAR_NIGHT = 1;
+var WINDY = 2;
+var COLD = 3;
+var PARTLY_CLOUDY_DAY = 4;
+var PARTLY_CLOUDY_NIGHT = 5;
+var HAZE = 6;
+var CLOUD = 7;
+var RAIN = 8;
+var SNOW = 9;
+var HAIL = 10;
+var CLOUDY = 11;
+var STORM = 12;
+var NA = 13;
 
-function indexForIconName(iconName) {
-  switch (iconName) {
-    case "01d":
-      return "B";
-    case "01n":
-      return "C";
-    case "02d":
-      return "H";
-    case "02n":
-      return "I";
-    case "03d":
-    case "03n":
-      return "N";
-    case "04d":
-    case "04n":
-      return "Y";
-    case "09d":
-    case "09n":
-    case "10d":
-    case "10n":
-      return "R";
-    case "11d":
-    case "11n":
-      return "Z";
-    case "13d":
-    case "13n":
-      return "W";
-    case "50d":
-      return "J";
-    case "50n":
-      return "E";
-    default:
-      return "";
-  }
-}
+var imageId = {
+  0 : STORM, //tornado
+  1 : STORM, //tropical storm
+  2 : STORM, //hurricane
+  3 : STORM, //severe thunderstorms
+  4 : STORM, //thunderstorms
+  5 : HAIL, //mixed rain and snow
+  6 : HAIL, //mixed rain and sleet
+  7 : HAIL, //mixed snow and sleet
+  8 : HAIL, //freezing drizzle
+  9 : RAIN, //drizzle
+  10 : HAIL, //freezing rain
+  11 : RAIN, //showers
+  12 : RAIN, //showers
+  13 : SNOW, //snow flurries
+  14 : SNOW, //light snow showers
+  15 : SNOW, //blowing snow
+  16 : SNOW, //snow
+  17 : HAIL, //hail
+  18 : HAIL, //sleet
+  19 : HAZE, //dust
+  20 : HAZE, //foggy
+  21 : HAZE, //haze
+  22 : HAZE, //smoky
+  23 : WINDY, //blustery
+  24 : WINDY, //windy
+  25 : COLD, //cold
+  26 : CLOUDY, //cloudy
+  27 : CLOUDY, //mostly cloudy (night)
+  28 : CLOUDY, //mostly cloudy (day)
+  29 : PARTLY_CLOUDY_NIGHT, //partly cloudy (night)
+  30 : PARTLY_CLOUDY_DAY, //partly cloudy (day)
+  31 : CLEAR_NIGHT, //clear (night)
+  32 : CLEAR_DAY, //sunny
+  33 : CLEAR_NIGHT, //fair (night)
+  34 : CLEAR_DAY, //fair (day)
+  35 : HAIL, //mixed rain and hail
+  36 : CLEAR_DAY, //hot
+  37 : STORM, //isolated thunderstorms
+  38 : STORM, //scattered thunderstorms
+  39 : STORM, //scattered thunderstorms
+  40 : STORM, //scattered showers
+  41 : SNOW, //heavy snow
+  42 : SNOW, //scattered snow showers
+  43 : SNOW, //heavy snow
+  44 : CLOUD, //partly cloudy
+  45 : STORM, //thundershowers
+  46 : SNOW, //snow showers
+  47 : STORM, //isolated thundershowers
+  3200 : NA, //not available
+};
 
-function fetchWeather(latitude, longitude) {
+function getWeatherFromLatLong(latitude, longitude) {
   var response;
+  var woeid = -1;
+  var key = "799d170dc115b0fbf01834005444ed4d";
   var req = new XMLHttpRequest();
-  req.open('GET', "http://api.openweathermap.org/data/2.5/weather?" +
-    "lat=" + latitude + "&lon=" + longitude + "&cnt=1", true);
+  var url = "http://api.flickr.com/services/rest/?method=flickr.places.findByLatLon&api_key=" + key + "&lat=" + latitude + "&lon=" + longitude + "&accuracy=16&format=json&nojsoncallback=1";
+  req.open('GET', url, true);
   req.onload = function(e) {
     if (req.readyState == 4) {
       if (req.status == 200) {
-        //console.log(req.responseText);
+        console.log(req.responseText);
         response = JSON.parse(req.responseText);
-        var temperature, icon;
         if (response) {
-          temperature = Math.round((response.main.temp - 273.15) * 1.8 + 32);
-          icon = indexForIconName(response.weather[0].icon);
+          woeid = response.places.place[0].woeid;
+          getWeatherFromWoeid(woeid);
+        }
+      } else {
+        console.log("Error");
+      }
+    }
+  }
+  req.send(null);
+}
+
+function getWeatherFromWoeid(woeid) {
+  console.log("weoid2: " + woeid);
+
+  var query = encodeURI("select item.condition from weather.forecast where woeid = " + woeid);
+  var url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json";
+
+  var response;
+  var req = new XMLHttpRequest();
+  console.log(url);
+  req.open('GET', url, true);
+  req.onload = function(e) {
+    if (req.readyState == 4) {
+      if (req.status == 200) {
+        response = JSON.parse(req.responseText);
+        if (response) {
+          var condition = response.query.results.channel.item.condition;
+          temperature = condition.temp;
+          icon = imageId[condition.code];
           console.log("temp " + temperature);
           console.log("icon " + icon);
+          console.log("condition " + condition.text);
           Pebble.sendAppMessage({
             "icon":icon,
             "temperature":temperature + "\u00B0F",
@@ -64,9 +123,15 @@ function fetchWeather(latitude, longitude) {
   req.send(null);
 }
 
+function updateLocation() {
+  window.navigator.geolocation.getCurrentPosition(locationSuccess,
+                                                  locationError,
+                                                  locationOptions);
+}
+
 function locationSuccess(pos) {
   var coordinates = pos.coords;
-  fetchWeather(coordinates.latitude, coordinates.longitude);
+  getWeatherFromLatLong(coordinates.latitude, coordinates.longitude);
 }
 
 function locationError(err) {
@@ -82,18 +147,10 @@ var locationOptions = { "timeout": 15000, "maximumAge": 60000 };
 Pebble.addEventListener("ready",
                         function(e) {
                           console.log("connect!" + e.ready);
-                          window.navigator.geolocation.getCurrentPosition(locationSuccess,
-                                                                          locationError,
-                                                                          locationOptions);
+                          updateLocation();
+                          setInterval(function() {
+                            console.log("timer fired");
+                            updateLocation();
+                          }, 1800000);
                           console.log(e.type);
-                        });
-
-Pebble.addEventListener("appmessage",
-                        function(e) {
-                          window.navigator.geolocation.getCurrentPosition(locationSuccess,
-                                                                          locationError,
-                                                                          locationOptions);
-                          console.log(e.type);
-                          console.log(e.payload.temperature);
-                          console.log("message!");
                         });

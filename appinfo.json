@@ -22,6 +22,76 @@
         "file": "images/menu_icon_simplicity.png"
       },
       {
+        "type": "png",
+        "name": "CLEAR_DAY",
+        "file": "images/2.png"
+      },
+      {
+        "type": "png",
+        "name": "CLEAR_NIGHT",
+        "file": "images/3.png"
+      },
+      {
+        "type": "png",
+        "name": "WINDY",
+        "file": "images/6.png"
+      },
+      {
+        "type": "png",
+        "name": "COLD",
+        "file": "images/7.png"
+      },
+      {
+        "type": "png",
+        "name": "PARTLY_CLOUDY_DAY",
+        "file": "images/8.png"
+      },
+      {
+        "type": "png",
+        "name": "PARTLY_CLOUDY_NIGHT",
+        "file": "images/9.png"
+      },
+      {
+        "type": "png",
+        "name": "HAZE",
+        "file": "images/13.png"
+      },
+      {
+        "type": "png",
+        "name": "CLOUD",
+        "file": "images/14.png"
+      },
+      {
+        "type": "png",
+        "name": "RAIN",
+        "file": "images/18.png"
+      },
+      {
+        "type": "png",
+        "name": "SNOW",
+        "file": "images/23.png"
+      },
+      {
+        "type": "png",
+        "name": "HAIL",
+        "file": "images/24.png"
+      },
+      {
+        "type": "png",
+        "name": "CLOUDY",
+        "file": "images/25.png"
+      },
+      {
+        "type": "png",
+        "name": "STORM",
+        "file": "images/27.png"
+      },
+      {
+        "type": "png",
+        "name": "NA",
+        "file": "images/45.png"
+      },
+      {
         "type": "font",
         "name": "FONT_ROBOTO_CONDENSED_21",
         "file": "fonts/Roboto-Condensed.ttf"

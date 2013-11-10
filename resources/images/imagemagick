@@ -1,0 +1,3 @@
+# The imagemagick command used to generate the png files from svg source
+
+mogrify -resize 35x35 -threshold 8% -format png *.svg
