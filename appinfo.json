@@ -92,6 +92,11 @@
         "file": "images/45.png"
       },
       {
+        "type": "png",
+        "name": "NO_BT",
+        "file": "images/no_bluetooth.png"
+      },
+      {
         "type": "font",
         "name": "FONT_ROBOTO_CONDENSED_21",
         "file": "fonts/Roboto-Condensed.ttf"

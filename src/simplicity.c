@@ -22,25 +22,22 @@ enum WeatherKey {
   WEATHER_TEMPERATURE_KEY = 0x1,  // TUPLE_CSTRING
 };
 
+Window *window;
+
 BitmapLayer *icon_layer;
 GBitmap *icon_bitmap = NULL;
 TextLayer *temp_layer;
 
-Window *window;
 TextLayer *text_day_layer;
 TextLayer *text_date_layer;
 TextLayer *text_time_layer;
 Layer *line_layer;
 
+// FIXME testing code
+TextLayer *battery_text_layer;
+
 static AppSync sync;
 static uint8_t sync_buffer[64];
-
-static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Sync Error: %d", app_message_error);
-
-  //text_layer_set_text(icon_layer, "");
-  text_layer_set_text(temp_layer, "");
-}
 
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
   // App Sync keeps new_tuple in sync_buffer, so we may use it directly
@@ -60,9 +57,27 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
   }
 }
 
+// Redraw line between date and time
 void line_layer_update_callback(Layer *layer, GContext* ctx) {
   graphics_context_set_fill_color(ctx, GColorWhite);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+}
+
+void bluetooth_connection_changed(bool connected) {
+  static bool _connected = true;
+
+  // This seemed to get called twice on disconnect
+  if (!connected && _connected) {
+    vibes_short_pulse();
+
+    if (icon_bitmap) {
+      gbitmap_destroy(icon_bitmap);
+    }
+
+    icon_bitmap = gbitmap_create_with_resource(RESOURCE_ID_NO_BT);
+    bitmap_layer_set_bitmap(icon_layer, icon_bitmap);
+  }
+  _connected = connected;
 }
 
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
@@ -71,7 +86,6 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   static char date_text[] = "Xxxxxxxxx 00";
   static char time_text[] = "00:00";
   static int yday = -1;
-  static int pass = 0;
 
   char *time_format;
 
@@ -98,10 +112,12 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   } else {
     text_layer_set_text(text_time_layer, time_text);
   }
-}
 
-void handle_deinit(void) {
-  tick_timer_service_unsubscribe();
+  // FIXME testing code
+  static char battery_text[] = "100%";
+  BatteryChargeState battery_state = battery_state_service_peek();
+  snprintf(battery_text, sizeof(battery_text), "%d%%", battery_state.charge_percent);
+  text_layer_set_text(battery_text_layer, battery_text);
 }
 
 void handle_init(void) {
@@ -111,6 +127,7 @@ void handle_init(void) {
 
   Layer *window_layer = window_get_root_layer(window);
 
+  // Setup weather bar
   Layer *weather_holder = layer_create(GRect(0, 0, 144, 50));
   layer_add_child(window_layer, weather_holder);
 
@@ -124,6 +141,7 @@ void handle_init(void) {
   text_layer_set_text_alignment(temp_layer, GTextAlignmentRight);
   layer_add_child(weather_holder, text_layer_get_layer(temp_layer));
 
+  // Initialize date & time text
   Layer *date_holder = layer_create(GRect(0, 52, 144, 94));
   layer_add_child(window_layer, date_holder);
 
@@ -139,34 +157,48 @@ void handle_init(void) {
   text_layer_set_font(text_date_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_21)));
   layer_add_child(date_holder, text_layer_get_layer(text_date_layer));
 
+  line_layer = layer_create(GRect(8, 51, 144-16, 2));
+  layer_set_update_proc(line_layer, line_layer_update_callback);
+  layer_add_child(date_holder, line_layer);
+
   text_time_layer = text_layer_create(GRect(7, 45, 144-7, 49));
   text_layer_set_text_color(text_time_layer, GColorWhite);
   text_layer_set_background_color(text_time_layer, GColorClear);
   text_layer_set_font(text_time_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49)));
   layer_add_child(date_holder, text_layer_get_layer(text_time_layer));
 
-  line_layer = layer_create(GRect(8, 51, 144-16, 2));
-  layer_set_update_proc(line_layer, line_layer_update_callback);
-  layer_add_child(date_holder, line_layer);
-
-  Tuplet initial_values[] = {
-    TupletInteger(WEATHER_ICON_KEY, (uint8_t) 0),
-    TupletCString(WEATHER_TEMPERATURE_KEY, ""),
-  };
-
+  // Setup messaging
   const int inbound_size = 64;
   const int outbound_size = 64;
   app_message_open(inbound_size, outbound_size);
 
+  Tuplet initial_values[] = {
+    TupletInteger(WEATHER_ICON_KEY, (uint8_t) 13),
+    TupletCString(WEATHER_TEMPERATURE_KEY, ""),
+  };
+
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
-      sync_tuple_changed_callback, sync_error_callback, NULL);
+      sync_tuple_changed_callback, NULL, NULL);
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Done setup");
+  // FIXME testing code
+  battery_text_layer = text_layer_create(GRect(0, 168 - 18, 144, 168));
+  text_layer_set_text_color(battery_text_layer, GColorWhite);
+  text_layer_set_background_color(battery_text_layer, GColorClear);
+  text_layer_set_font(battery_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_text_alignment(battery_text_layer, GTextAlignmentRight);
+  layer_add_child(window_layer, text_layer_get_layer(battery_text_layer));
 
+  // Subscribe to notifications
+  bluetooth_connection_service_subscribe(bluetooth_connection_changed);
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+
   // TODO: Update display here to avoid blank display on launch?
 }
 
+void handle_deinit(void) {
+  bluetooth_connection_service_unsubscribe();
+  tick_timer_service_unsubscribe();
+}
 
 int main(void) {
   handle_init();
