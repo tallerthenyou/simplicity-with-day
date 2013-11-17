@@ -91,6 +91,8 @@
           $('input:radio[name=units][value=fahrenheit]').prop('checked', true).trigger("click");
         }
 
+        // Disable location field based on GPS toggle
+        $('#location').prop('disabled', $('#gps_switch').val() == "true");
         $('#gps_switch').change(function() {
           $('#location').prop('disabled', $('#gps_switch').val() == "true");
         });
