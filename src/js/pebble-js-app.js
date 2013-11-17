@@ -93,6 +93,31 @@ function getWeatherFromLatLong(latitude, longitude) {
   req.send(null);
 }
 
+function getWeatherFromLocation(location_name) {
+  var response;
+  var woeid = -1;
+
+  var query = encodeURI("select woeid from geo.places(1) where text=\"" + location_name + "\"");
+  var url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json";
+  var req = new XMLHttpRequest();
+  req.open('GET', url, true);
+  req.onload = function(e) {
+    if (req.readyState == 4) {
+      if (req.status == 200) {
+        console.log(req.responseText);
+        response = JSON.parse(req.responseText);
+        if (response) {
+          woeid = response.query.results.place.woeid;
+          getWeatherFromWoeid(woeid);
+        }
+      } else {
+        console.log("Error");
+      }
+    }
+  }
+  req.send(null);
+}
+
 function getWeatherFromWoeid(woeid) {
   console.log("weoid2: " + woeid);
 
@@ -129,17 +154,17 @@ function getWeatherFromWoeid(woeid) {
   req.send(null);
 }
 
-var locationOptions = { "timeout": 15000, "maximumAge": 60000 };
-
 function updateWeather() {
-  if (options['use_gps']) {
+  if (options['use_gps'] == "true") {
     window.navigator.geolocation.getCurrentPosition(locationSuccess,
                                                     locationError,
                                                     locationOptions);
   } else {
-    //Update it some other way
+    getWeatherFromLocation(options["location"]);
   }
 }
+
+var locationOptions = { "timeout": 15000, "maximumAge": 60000 };
 
 function locationSuccess(pos) {
   var coordinates = pos.coords;
