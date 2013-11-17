@@ -144,13 +144,38 @@ function locationError(err) {
 
 var locationOptions = { "timeout": 15000, "maximumAge": 60000 };
 
-Pebble.addEventListener("ready",
-                        function(e) {
-                          console.log("connect!" + e.ready);
-                          updateLocation();
-                          setInterval(function() {
-                            console.log("timer fired");
-                            updateLocation();
-                          }, 1800000);
-                          console.log(e.type);
-                        });
+Pebble.addEventListener('showConfiguration', function(e) {
+  var options = JSON.parse(localStorage.getItem('options'));
+  if (options === null) options = { "use_gps" : "true", "location" : "", "units" : "fahrenheit"};
+  console.log('read options: ' + JSON.stringify(options));
+
+  var uri = 'http://tallerthenyou.github.io/simplicity-with-day/configuration.html?' +
+    'use_gps=' + encodeURIComponent(options['use_gps']) +
+    '&location=' + encodeURIComponent(options['location']) +
+    '&units=' + encodeURIComponent(options['units']);
+  console.log('showing configuration at uri: ' + uri);
+
+  Pebble.openURL(uri);
+});
+
+
+
+Pebble.addEventListener('webviewclosed', function(e) {
+  if (e.response) {
+    var options = JSON.parse(decodeURIComponent(e.response));
+    localStorage.setItem('options', JSON.stringify(options));
+    console.log('storing options: ' + JSON.stringify(options));
+  } else {
+    console.log('no options received');
+  }
+});
+
+Pebble.addEventListener("ready", function(e) {
+  console.log("connect!" + e.ready);
+  updateLocation();
+  setInterval(function() {
+    console.log("timer fired");
+    updateLocation();
+  }, 1800000);
+  console.log(e.type);
+});
