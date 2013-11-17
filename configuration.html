@@ -90,6 +90,10 @@
         } else {
           $('input:radio[name=units][value=fahrenheit]').prop('checked', true).trigger("click");
         }
+
+        $('#gps_switch').change(function() {
+          $('#location').prop('disabled', $('#gps_switch').val() == "true");
+        });
       });
     </script>
   </body>
