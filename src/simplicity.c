@@ -112,10 +112,11 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   } else {
     text_layer_set_text(text_time_layer, time_text);
   }
+}
 
-  // FIXME testing code
+// FIXME testing code
+void update_battery_state(BatteryChargeState battery_state) {
   static char battery_text[] = "100%";
-  BatteryChargeState battery_state = battery_state_service_peek();
   snprintf(battery_text, sizeof(battery_text), "%d%%", battery_state.charge_percent);
   text_layer_set_text(battery_text_layer, battery_text);
 }
@@ -191,6 +192,10 @@ void handle_init(void) {
   // Subscribe to notifications
   bluetooth_connection_service_subscribe(bluetooth_connection_changed);
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+  battery_state_service_subscribe(update_battery_state);
+
+  // Update the battery on launch
+  update_battery_state(battery_state_service_peek());
 
   // TODO: Update display here to avoid blank display on launch?
 }
@@ -198,6 +203,7 @@ void handle_init(void) {
 void handle_deinit(void) {
   bluetooth_connection_service_unsubscribe();
   tick_timer_service_unsubscribe();
+  battery_state_service_unsubscribe();
 }
 
 int main(void) {
