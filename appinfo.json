@@ -1,7 +1,7 @@
 {
   "uuid": "1f0b0701-cc8f-47ec-86e7-7181397f9a8e",
-  "shortName": "Simple w/ Day",
-  "longName": "Simplicity with day of the week",
+  "shortName": "Simple Weather",
+  "longName": "Simplicity inspired with weather",
   "companyName": "John Flanagan",
   "versionCode": 1,
   "versionLabel": "1.0.0",
@@ -10,7 +10,6 @@
     "watchface": true
   },
   "appKeys": {
-    "city": 2,
     "temperature": 1,
     "icon": 0
   },
