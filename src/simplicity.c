@@ -58,7 +58,10 @@ void set_invert_color(bool invert) {
   // No action required
 }
 
-static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
+static void sync_tuple_changed_callback(const uint32_t key,
+                                        const Tuple* new_tuple,
+                                        const Tuple* old_tuple,
+                                        void* context) {
   bool invert;
 
   // App Sync keeps new_tuple in sync_buffer, so we may use it directly
@@ -68,7 +71,8 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
         gbitmap_destroy(icon_bitmap);
       }
 
-      icon_bitmap = gbitmap_create_with_resource(WEATHER_ICONS[new_tuple->value->uint8]);
+      icon_bitmap = gbitmap_create_with_resource(
+          WEATHER_ICONS[new_tuple->value->uint8]);
       bitmap_layer_set_bitmap(icon_layer, icon_bitmap);
       break;
 
@@ -144,7 +148,8 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 // FIXME testing code
 void update_battery_state(BatteryChargeState battery_state) {
   static char battery_text[] = "100%";
-  snprintf(battery_text, sizeof(battery_text), "%d%%", battery_state.charge_percent);
+  snprintf(battery_text, sizeof(battery_text), "%d%%",
+      battery_state.charge_percent);
   text_layer_set_text(battery_text_layer, battery_text);
 }
 
@@ -165,7 +170,8 @@ void handle_init(void) {
   temp_layer = text_layer_create(GRect(40, 3, 144 - 40, 28));
   text_layer_set_text_color(temp_layer, GColorWhite);
   text_layer_set_background_color(temp_layer, GColorClear);
-  text_layer_set_font(temp_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_font(temp_layer,
+      fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
   text_layer_set_text_alignment(temp_layer, GTextAlignmentRight);
   layer_add_child(weather_holder, text_layer_get_layer(temp_layer));
 
@@ -173,26 +179,28 @@ void handle_init(void) {
   Layer *date_holder = layer_create(GRect(0, 52, 144, 94));
   layer_add_child(window_layer, date_holder);
 
+  ResHandle roboto_21 = resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_21);
   text_day_layer = text_layer_create(GRect(8, 0, 144-8, 25));
   text_layer_set_text_color(text_day_layer, GColorWhite);
   text_layer_set_background_color(text_day_layer, GColorClear);
-  text_layer_set_font(text_day_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_21)));
+  text_layer_set_font(text_day_layer, fonts_load_custom_font(roboto_21));
   layer_add_child(date_holder, text_layer_get_layer(text_day_layer));
 
   text_date_layer = text_layer_create(GRect(8, 21, 144-8, 21));
   text_layer_set_text_color(text_date_layer, GColorWhite);
   text_layer_set_background_color(text_date_layer, GColorClear);
-  text_layer_set_font(text_date_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_21)));
+  text_layer_set_font(text_date_layer, fonts_load_custom_font(roboto_21));
   layer_add_child(date_holder, text_layer_get_layer(text_date_layer));
 
   line_layer = layer_create(GRect(8, 51, 144-16, 2));
   layer_set_update_proc(line_layer, line_layer_update_callback);
   layer_add_child(date_holder, line_layer);
 
+  ResHandle roboto_49 = resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49);
   text_time_layer = text_layer_create(GRect(7, 45, 144-7, 49));
   text_layer_set_text_color(text_time_layer, GColorWhite);
   text_layer_set_background_color(text_time_layer, GColorClear);
-  text_layer_set_font(text_time_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49)));
+  text_layer_set_font(text_time_layer, fonts_load_custom_font(roboto_49));
   layer_add_child(date_holder, text_layer_get_layer(text_time_layer));
 
   // Setup messaging
@@ -206,14 +214,16 @@ void handle_init(void) {
     TupletInteger(INVERT_COLOR_KEY, persist_read_bool(INVERT_COLOR_KEY)),
   };
 
-  app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
-      sync_tuple_changed_callback, NULL, NULL);
+  app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values,
+                ARRAY_LENGTH(initial_values), sync_tuple_changed_callback,
+                NULL, NULL);
 
   // FIXME testing code
   battery_text_layer = text_layer_create(GRect(0, 168 - 18, 144, 168));
   text_layer_set_text_color(battery_text_layer, GColorWhite);
   text_layer_set_background_color(battery_text_layer, GColorClear);
-  text_layer_set_font(battery_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_font(battery_text_layer,
+                      fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
   text_layer_set_text_alignment(battery_text_layer, GTextAlignmentRight);
   layer_add_child(window_layer, text_layer_get_layer(battery_text_layer));
 
