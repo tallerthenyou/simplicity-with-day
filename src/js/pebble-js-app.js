@@ -67,7 +67,10 @@ var imageId = {
 
 var options = JSON.parse(localStorage.getItem('options'));
 console.log('read options: ' + JSON.stringify(options));
-if (options === null) options = { "use_gps" : "true", "location" : "", "units" : "fahrenheit"};
+if (options === null) options = { "use_gps" : "true",
+                                  "location" : "",
+                                  "units" : "fahrenheit",
+                                  "invert_color" : "false"};
 
 function getWeatherFromLatLong(latitude, longitude) {
   var response;
@@ -79,7 +82,7 @@ function getWeatherFromLatLong(latitude, longitude) {
   req.onload = function(e) {
     if (req.readyState == 4) {
       if (req.status == 200) {
-        console.log(req.responseText);
+        // console.log(req.responseText);
         response = JSON.parse(req.responseText);
         if (response) {
           woeid = response.places.place[0].woeid;
@@ -104,7 +107,7 @@ function getWeatherFromLocation(location_name) {
   req.onload = function(e) {
     if (req.readyState == 4) {
       if (req.status == 200) {
-        console.log(req.responseText);
+        // console.log(req.responseText);
         response = JSON.parse(req.responseText);
         if (response) {
           woeid = response.query.results.place.woeid;
@@ -119,8 +122,6 @@ function getWeatherFromLocation(location_name) {
 }
 
 function getWeatherFromWoeid(woeid) {
-  console.log("weoid2: " + woeid);
-
   var celsius = options['units'] == 'celsius';
   var query = encodeURI("select item.condition from weather.forecast where woeid = " + woeid +
                         " and u = " + (celsius ? "\"c\"" : "\"f\""));
@@ -128,7 +129,7 @@ function getWeatherFromWoeid(woeid) {
 
   var response;
   var req = new XMLHttpRequest();
-  console.log(url);
+  // console.log(url);
   req.open('GET', url, true);
   req.onload = function(e) {
     if (req.readyState == 4) {
@@ -138,9 +139,9 @@ function getWeatherFromWoeid(woeid) {
           var condition = response.query.results.channel.item.condition;
           temperature = condition.temp + (celsius ? "\u00B0C" : "\u00B0F");
           icon = imageId[condition.code];
-          console.log("temp " + temperature);
-          console.log("icon " + icon);
-          console.log("condition " + condition.text);
+          // console.log("temp " + temperature);
+          // console.log("icon " + icon);
+          // console.log("condition " + condition.text);
           Pebble.sendAppMessage({
             "icon":icon,
             "temperature":temperature,
@@ -183,7 +184,8 @@ Pebble.addEventListener('showConfiguration', function(e) {
   var uri = 'http://tallerthenyou.github.io/simplicity-with-day/configuration.html?' +
     'use_gps=' + encodeURIComponent(options['use_gps']) +
     '&location=' + encodeURIComponent(options['location']) +
-    '&units=' + encodeURIComponent(options['units']);
+    '&units=' + encodeURIComponent(options['units']) +
+    '&invert_color=' + encodeURIComponent(options['invert_color']);
   console.log('showing configuration at uri: ' + uri);
 
   Pebble.openURL(uri);
@@ -195,6 +197,11 @@ Pebble.addEventListener('webviewclosed', function(e) {
     localStorage.setItem('options', JSON.stringify(options));
     console.log('storing options: ' + JSON.stringify(options));
     updateWeather();
+
+    // Update color setting
+    Pebble.sendAppMessage({
+      "invert_color" : (options["invert_color"] == "true" ? 1 : 0),
+    });
   } else {
     console.log('no options received');
   }

@@ -20,6 +20,7 @@ static const uint32_t WEATHER_ICONS[] = {
 enum WeatherKey {
   WEATHER_ICON_KEY = 0x0,         // TUPLE_INT
   WEATHER_TEMPERATURE_KEY = 0x1,  // TUPLE_CSTRING
+  INVERT_COLOR_KEY = 0x2,  // TUPLE_CSTRING
 };
 
 Window *window;
@@ -33,13 +34,33 @@ TextLayer *text_date_layer;
 TextLayer *text_time_layer;
 Layer *line_layer;
 
+InverterLayer *inverter_layer = NULL;
+
 // FIXME testing code
 TextLayer *battery_text_layer;
 
 static AppSync sync;
 static uint8_t sync_buffer[64];
 
+void set_invert_color(bool invert) {
+  if (invert && inverter_layer == NULL) {
+    // Add inverter layer
+    Layer *window_layer = window_get_root_layer(window);
+
+    inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
+    layer_add_child(window_layer, inverter_layer_get_layer(inverter_layer));
+  } else if (!invert && inverter_layer != NULL) {
+    // Remove Inverter layer
+    layer_remove_from_parent(inverter_layer_get_layer(inverter_layer));
+    inverter_layer_destroy(inverter_layer);
+    inverter_layer = NULL;
+  }
+  // No action required
+}
+
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
+  bool invert;
+
   // App Sync keeps new_tuple in sync_buffer, so we may use it directly
   switch (key) {
     case WEATHER_ICON_KEY:
@@ -53,6 +74,12 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
 
     case WEATHER_TEMPERATURE_KEY:
       text_layer_set_text(temp_layer, new_tuple->value->cstring);
+      break;
+
+    case INVERT_COLOR_KEY:
+      invert = new_tuple->value->uint8 != 0;
+      persist_write_bool(INVERT_COLOR_KEY, invert);
+      set_invert_color(invert);
       break;
   }
 }
@@ -176,6 +203,7 @@ void handle_init(void) {
   Tuplet initial_values[] = {
     TupletInteger(WEATHER_ICON_KEY, (uint8_t) 13),
     TupletCString(WEATHER_TEMPERATURE_KEY, ""),
+    TupletInteger(INVERT_COLOR_KEY, persist_read_bool(INVERT_COLOR_KEY)),
   };
 
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),

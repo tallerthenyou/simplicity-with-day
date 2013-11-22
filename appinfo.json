@@ -10,8 +10,9 @@
     "watchface": true
   },
   "appKeys": {
+    "icon": 0,
     "temperature": 1,
-    "icon": 0
+    "invert_color": 2
   },
   "resources": {
     "media": [
