@@ -145,6 +145,7 @@ function getWeatherFromWoeid(woeid) {
           Pebble.sendAppMessage({
             "icon":icon,
             "temperature":temperature,
+            "invert_color" : (options["invert_color"] == "true" ? 1 : 0),
           });
         }
       } else {
@@ -197,11 +198,6 @@ Pebble.addEventListener('webviewclosed', function(e) {
     localStorage.setItem('options', JSON.stringify(options));
     console.log('storing options: ' + JSON.stringify(options));
     updateWeather();
-
-    // Update color setting
-    Pebble.sendAppMessage({
-      "invert_color" : (options["invert_color"] == "true" ? 1 : 0),
-    });
   } else {
     console.log('no options received');
   }
