@@ -186,7 +186,7 @@ void handle_init(void) {
   text_layer_set_font(text_day_layer, fonts_load_custom_font(roboto_21));
   layer_add_child(date_holder, text_layer_get_layer(text_day_layer));
 
-  text_date_layer = text_layer_create(GRect(8, 21, 144-8, 21));
+  text_date_layer = text_layer_create(GRect(8, 21, 144-8, 25));
   text_layer_set_text_color(text_date_layer, GColorWhite);
   text_layer_set_background_color(text_date_layer, GColorClear);
   text_layer_set_font(text_date_layer, fonts_load_custom_font(roboto_21));
