@@ -82,7 +82,6 @@ function getWeatherFromLatLong(latitude, longitude) {
   req.onload = function(e) {
     if (req.readyState == 4) {
       if (req.status == 200) {
-        // console.log(req.responseText);
         response = JSON.parse(req.responseText);
         if (response) {
           woeid = response.places.place[0].woeid;
@@ -129,7 +128,6 @@ function getWeatherFromWoeid(woeid) {
 
   var response;
   var req = new XMLHttpRequest();
-  // console.log(url);
   req.open('GET', url, true);
   req.onload = function(e) {
     if (req.readyState == 4) {
@@ -143,8 +141,8 @@ function getWeatherFromWoeid(woeid) {
           // console.log("icon " + icon);
           // console.log("condition " + condition.text);
           Pebble.sendAppMessage({
-            "icon":icon,
-            "temperature":temperature,
+            "icon" : icon,
+            "temperature" : temperature,
             "invert_color" : (options["invert_color"] == "true" ? 1 : 0),
           });
         }
@@ -209,6 +207,6 @@ Pebble.addEventListener("ready", function(e) {
   setInterval(function() {
     console.log("timer fired");
     updateWeather();
-  }, 1800000);
+  }, 1800000); // 30 minutes
   console.log(e.type);
 });
