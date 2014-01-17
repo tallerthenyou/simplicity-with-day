@@ -75,22 +75,24 @@ if (options === null) options = { "use_gps" : "true",
 function getWeatherFromLatLong(latitude, longitude) {
   var response;
   var woeid = -1;
-  var key = "799d170dc115b0fbf01834005444ed4d";
+  var query = encodeURI("select woeid from geo.placefinder where text=\""+latitude+","+longitude + "\" and gflags=\"R\"");
+  var url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json";
+
+  var response;
   var req = new XMLHttpRequest();
-  var url = "http://api.flickr.com/services/rest/?method=flickr.places.findByLatLon&api_key=" + key + "&lat=" + latitude + "&lon=" + longitude + "&accuracy=16&format=json&nojsoncallback=1";
   req.open('GET', url, true);
   req.onload = function(e) {
-    if (req.readyState == 4) {
-      if (req.status == 200) {
-        response = JSON.parse(req.responseText);
-        if (response) {
-          woeid = response.places.place[0].woeid;
-          getWeatherFromWoeid(woeid);
-        }
-      } else {
-        console.log("Error");
+      if (req.readyState == 4) {
+          if (req.status == 200) {
+              response = JSON.parse(req.responseText);
+              if (response) {
+                  woeid = response.query.results.Result.woeid;
+                  getWeatherFromWoeid(woeid);
+              }
+          } else {
+              console.log("Error");
+          }
       }
-    }
   }
   req.send(null);
 }
