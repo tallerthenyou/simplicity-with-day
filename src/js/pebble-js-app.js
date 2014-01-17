@@ -77,22 +77,20 @@ function getWeatherFromLatLong(latitude, longitude) {
   var woeid = -1;
   var query = encodeURI("select woeid from geo.placefinder where text=\""+latitude+","+longitude + "\" and gflags=\"R\"");
   var url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json";
-
-  var response;
   var req = new XMLHttpRequest();
   req.open('GET', url, true);
   req.onload = function(e) {
-      if (req.readyState == 4) {
-          if (req.status == 200) {
-              response = JSON.parse(req.responseText);
-              if (response) {
-                  woeid = response.query.results.Result.woeid;
-                  getWeatherFromWoeid(woeid);
-              }
-          } else {
-              console.log("Error");
-          }
+    if (req.readyState == 4) {
+      if (req.status == 200) {
+        response = JSON.parse(req.responseText);
+        if (response) {
+          woeid = response.query.results.Result.woeid;
+          getWeatherFromWoeid(woeid);
+        }
+      } else {
+        console.log("Error");
       }
+    }
   }
   req.send(null);
 }
