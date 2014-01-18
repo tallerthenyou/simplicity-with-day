@@ -66,7 +66,7 @@ var imageId = {
 };
 
 var options = JSON.parse(localStorage.getItem('options'));
-console.log('read options: ' + JSON.stringify(options));
+//console.log('read options: ' + JSON.stringify(options));
 if (options === null) options = { "use_gps" : "true",
                                   "location" : "",
                                   "units" : "fahrenheit",
@@ -185,7 +185,7 @@ Pebble.addEventListener('showConfiguration', function(e) {
     '&location=' + encodeURIComponent(options['location']) +
     '&units=' + encodeURIComponent(options['units']) +
     '&invert_color=' + encodeURIComponent(options['invert_color']);
-  console.log('showing configuration at uri: ' + uri);
+  //console.log('showing configuration at uri: ' + uri);
 
   Pebble.openURL(uri);
 });
@@ -194,7 +194,7 @@ Pebble.addEventListener('webviewclosed', function(e) {
   if (e.response) {
     options = JSON.parse(decodeURIComponent(e.response));
     localStorage.setItem('options', JSON.stringify(options));
-    console.log('storing options: ' + JSON.stringify(options));
+    //console.log('storing options: ' + JSON.stringify(options));
     updateWeather();
   } else {
     console.log('no options received');
@@ -202,10 +202,10 @@ Pebble.addEventListener('webviewclosed', function(e) {
 });
 
 Pebble.addEventListener("ready", function(e) {
-  console.log("connect!" + e.ready);
+  //console.log("connect!" + e.ready);
   updateWeather();
   setInterval(function() {
-    console.log("timer fired");
+    //console.log("timer fired");
     updateWeather();
   }, 1800000); // 30 minutes
   console.log(e.type);
