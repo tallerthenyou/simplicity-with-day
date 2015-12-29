@@ -33,10 +33,18 @@ GBitmap *icon_bitmap = NULL;
 TextLayer *temp_layer;
 
 TextLayer *text_day_layer;
+GRect day_layer_hidden_rect = {{8, 50}, {144-8, 25}};
+GRect day_layer_visible_rect = {{8, 0}, {144-8, 25}};
+
 TextLayer *text_date_layer;
-TextLayer *text_time_layer;
+GRect date_layer_hidden_rect = {{8, 71}, {144-8, 25}};
+GRect date_layer_visible_rect = {{8, 21}, {144-8, 25}};
+
 Layer *line_layer;
 
+TextLayer *text_time_layer;
+GRect time_layer_hidden_rect = {{7, -56}, {144-7, 49}};
+GRect time_layer_visible_rect = {{7, -7}, {144-7, 49}};
 
 TextLayer *battery_text_layer;
 
@@ -155,6 +163,27 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   } else {
     text_layer_set_text(text_time_layer, time_text);
   }
+
+  // On the first update of the date and time animate the text fields into view
+  static bool first_update = true;
+  if (first_update) {
+    first_update = false;
+
+    PropertyAnimation *animation = property_animation_create_layer_frame(
+        text_layer_get_layer(text_day_layer),
+        &day_layer_hidden_rect, &day_layer_visible_rect);
+    animation_schedule(property_animation_get_animation(animation));
+
+    animation = property_animation_create_layer_frame(
+        text_layer_get_layer(text_date_layer),
+        &date_layer_hidden_rect, &date_layer_visible_rect);
+    animation_schedule(property_animation_get_animation(animation));
+
+    animation = property_animation_create_layer_frame(
+        text_layer_get_layer(text_time_layer),
+        &time_layer_hidden_rect, &time_layer_visible_rect);
+    animation_schedule(property_animation_get_animation(animation));
+  }
 }
 
 // FIXME testing code
@@ -191,17 +220,20 @@ void handle_init(void) {
   layer_add_child(weather_holder, text_layer_get_layer(temp_layer));
 
   // Initialize date & time text
-  Layer *date_holder = layer_create(GRect(0, 52, 144, 94));
-  layer_add_child(window_layer, date_holder);
+  Layer *main_holder = layer_create(GRect(0, 52, 144, 94));
+  layer_add_child(window_layer, main_holder);
+
+  Layer *date_holder = layer_create(GRect(0, 0, 144, 50));
+  layer_add_child(main_holder, date_holder);
 
   ResHandle roboto_21 = resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_21);
-  text_day_layer = text_layer_create(GRect(8, 0, 144-8, 25));
+  text_day_layer = text_layer_create(day_layer_hidden_rect);
   text_layer_set_text_color(text_day_layer, foreground_color);
   text_layer_set_background_color(text_day_layer, GColorClear);
   text_layer_set_font(text_day_layer, fonts_load_custom_font(roboto_21));
   layer_add_child(date_holder, text_layer_get_layer(text_day_layer));
 
-  text_date_layer = text_layer_create(GRect(8, 21, 144-8, 25));
+  text_date_layer = text_layer_create(date_layer_hidden_rect);
   text_layer_set_text_color(text_date_layer, foreground_color);
   text_layer_set_background_color(text_date_layer, GColorClear);
   text_layer_set_font(text_date_layer, fonts_load_custom_font(roboto_21));
@@ -209,14 +241,17 @@ void handle_init(void) {
 
   line_layer = layer_create(GRect(8, 51, 144-16, 2));
   layer_set_update_proc(line_layer, line_layer_update_callback);
-  layer_add_child(date_holder, line_layer);
+  layer_add_child(main_holder, line_layer);
+
+  Layer *time_holder = layer_create(GRect(0, 52, 144, 49));
+  layer_add_child(main_holder, time_holder);
 
   ResHandle roboto_49 = resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49);
-  text_time_layer = text_layer_create(GRect(7, 45, 144-7, 49));
+  text_time_layer = text_layer_create(time_layer_hidden_rect);
   text_layer_set_text_color(text_time_layer, foreground_color);
   text_layer_set_background_color(text_time_layer, GColorClear);
   text_layer_set_font(text_time_layer, fonts_load_custom_font(roboto_49));
-  layer_add_child(date_holder, text_layer_get_layer(text_time_layer));
+  layer_add_child(time_holder, text_layer_get_layer(text_time_layer));
 
   // Setup messaging
   const int inbound_size = 64;
