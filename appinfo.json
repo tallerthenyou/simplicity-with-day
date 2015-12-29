@@ -4,8 +4,10 @@
   "longName": "Simplicity inspired with weather",
   "companyName": "John Flanagan",
   "versionCode": 1,
-  "versionLabel": "1.0.0",
-  "capabilities": [ "configurable" ],
+  "versionLabel": "1.1",
+  "capabilities": [
+    "configurable"
+  ],
   "watchapp": {
     "watchface": true
   },
@@ -115,5 +117,11 @@
         "file": "fonts/meteocons.ttf"
       }
     ]
-  }
+  },
+  "targetPlatforms": [
+    "aplite",
+    "basalt",
+    "chalk"
+  ],
+  "sdkVersion": "3"
 }
