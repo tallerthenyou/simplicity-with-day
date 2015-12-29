@@ -23,6 +23,9 @@ enum WeatherKey {
   INVERT_COLOR_KEY = 0x2,  // TUPLE_CSTRING
 };
 
+GColor background_color;
+GColor foreground_color;
+
 Window *window;
 
 BitmapLayer *icon_layer;
@@ -34,28 +37,37 @@ TextLayer *text_date_layer;
 TextLayer *text_time_layer;
 Layer *line_layer;
 
-InverterLayer *inverter_layer = NULL;
 
-// FIXME testing code
 TextLayer *battery_text_layer;
 
 static AppSync sync;
 static uint8_t sync_buffer[64];
 
 void set_invert_color(bool invert) {
-  if (invert && inverter_layer == NULL) {
-    // Add inverter layer
-    Layer *window_layer = window_get_root_layer(window);
-
-    inverter_layer = inverter_layer_create(GRect(0, 0, 144, 168));
-    layer_add_child(window_layer, inverter_layer_get_layer(inverter_layer));
-  } else if (!invert && inverter_layer != NULL) {
-    // Remove Inverter layer
-    layer_remove_from_parent(inverter_layer_get_layer(inverter_layer));
-    inverter_layer_destroy(inverter_layer);
-    inverter_layer = NULL;
+  if (invert) {
+    background_color = GColorWhite;
+    foreground_color = GColorBlack;
+  } else {
+    background_color = GColorBlack;
+    foreground_color = GColorWhite;
   }
-  // No action required
+
+  window_set_background_color(window, background_color);
+  text_layer_set_text_color(temp_layer, foreground_color);
+  text_layer_set_text_color(text_day_layer, foreground_color);
+  text_layer_set_text_color(text_date_layer, foreground_color);
+  text_layer_set_text_color(text_time_layer, foreground_color);
+  text_layer_set_text_color(battery_text_layer, foreground_color);
+
+  GBitmapFormat format = gbitmap_get_format(icon_bitmap);
+  if (format ==  GBitmapFormat1BitPalette) {
+    GColor *palette = gbitmap_get_palette(icon_bitmap);
+    palette[0] = background_color;
+    palette[1] = foreground_color;
+  }
+
+  Layer *window_layer = window_get_root_layer(window);
+  layer_mark_dirty(window_layer);
 }
 
 static void sync_tuple_changed_callback(const uint32_t key,
@@ -90,7 +102,7 @@ static void sync_tuple_changed_callback(const uint32_t key,
 
 // Redraw line between date and time
 void line_layer_update_callback(Layer *layer, GContext* ctx) {
-  graphics_context_set_fill_color(ctx, GColorWhite);
+  graphics_context_set_fill_color(ctx, foreground_color);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
 }
 
@@ -154,9 +166,12 @@ void update_battery_state(BatteryChargeState battery_state) {
 }
 
 void handle_init(void) {
+  background_color = GColorBlack;
+  foreground_color = GColorWhite;
+
   window = window_create();
   window_stack_push(window, true /* Animated */);
-  window_set_background_color(window, GColorBlack);
+  window_set_background_color(window, background_color);
 
   Layer *window_layer = window_get_root_layer(window);
 
@@ -168,7 +183,7 @@ void handle_init(void) {
   layer_add_child(weather_holder, bitmap_layer_get_layer(icon_layer));
 
   temp_layer = text_layer_create(GRect(40, 3, 144 - 40, 28));
-  text_layer_set_text_color(temp_layer, GColorWhite);
+  text_layer_set_text_color(temp_layer, foreground_color);
   text_layer_set_background_color(temp_layer, GColorClear);
   text_layer_set_font(temp_layer,
       fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
@@ -181,13 +196,13 @@ void handle_init(void) {
 
   ResHandle roboto_21 = resource_get_handle(RESOURCE_ID_FONT_ROBOTO_CONDENSED_21);
   text_day_layer = text_layer_create(GRect(8, 0, 144-8, 25));
-  text_layer_set_text_color(text_day_layer, GColorWhite);
+  text_layer_set_text_color(text_day_layer, foreground_color);
   text_layer_set_background_color(text_day_layer, GColorClear);
   text_layer_set_font(text_day_layer, fonts_load_custom_font(roboto_21));
   layer_add_child(date_holder, text_layer_get_layer(text_day_layer));
 
   text_date_layer = text_layer_create(GRect(8, 21, 144-8, 25));
-  text_layer_set_text_color(text_date_layer, GColorWhite);
+  text_layer_set_text_color(text_date_layer, foreground_color);
   text_layer_set_background_color(text_date_layer, GColorClear);
   text_layer_set_font(text_date_layer, fonts_load_custom_font(roboto_21));
   layer_add_child(date_holder, text_layer_get_layer(text_date_layer));
@@ -198,7 +213,7 @@ void handle_init(void) {
 
   ResHandle roboto_49 = resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49);
   text_time_layer = text_layer_create(GRect(7, 45, 144-7, 49));
-  text_layer_set_text_color(text_time_layer, GColorWhite);
+  text_layer_set_text_color(text_time_layer, foreground_color);
   text_layer_set_background_color(text_time_layer, GColorClear);
   text_layer_set_font(text_time_layer, fonts_load_custom_font(roboto_49));
   layer_add_child(date_holder, text_layer_get_layer(text_time_layer));
@@ -218,9 +233,8 @@ void handle_init(void) {
                 ARRAY_LENGTH(initial_values), sync_tuple_changed_callback,
                 NULL, NULL);
 
-  // FIXME testing code
   battery_text_layer = text_layer_create(GRect(0, 168 - 18, 144, 168));
-  text_layer_set_text_color(battery_text_layer, GColorWhite);
+  text_layer_set_text_color(battery_text_layer, foreground_color);
   text_layer_set_background_color(battery_text_layer, GColorClear);
   text_layer_set_font(battery_text_layer,
                       fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
