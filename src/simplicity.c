@@ -186,7 +186,6 @@ void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
   }
 }
 
-// FIXME testing code
 void update_battery_state(BatteryChargeState battery_state) {
   static char battery_text[] = "100%";
   snprintf(battery_text, sizeof(battery_text), "%d%%",
@@ -195,8 +194,15 @@ void update_battery_state(BatteryChargeState battery_state) {
 }
 
 void handle_init(void) {
-  background_color = GColorBlack;
-  foreground_color = GColorWhite;
+  bool invert_color = persist_read_bool(INVERT_COLOR_KEY);
+
+  if (invert_color) {
+    background_color = GColorWhite;
+    foreground_color = GColorBlack;
+  } else {
+    background_color = GColorBlack;
+    foreground_color = GColorWhite;
+  }
 
   window = window_create();
   window_stack_push(window, true /* Animated */);
@@ -261,7 +267,7 @@ void handle_init(void) {
   Tuplet initial_values[] = {
     TupletInteger(WEATHER_ICON_KEY, (uint8_t) 13),
     TupletCString(WEATHER_TEMPERATURE_KEY, ""),
-    TupletInteger(INVERT_COLOR_KEY, persist_read_bool(INVERT_COLOR_KEY)),
+    TupletInteger(INVERT_COLOR_KEY, invert_color),
   };
 
   app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values,
