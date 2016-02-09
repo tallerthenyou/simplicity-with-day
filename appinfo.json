@@ -119,9 +119,7 @@
     ]
   },
   "targetPlatforms": [
-    "aplite",
-    "basalt",
-    "chalk"
+    "aplite"
   ],
   "sdkVersion": "3"
 }
