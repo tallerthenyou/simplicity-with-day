@@ -74,9 +74,8 @@ if (options === null) options = { "use_gps" : "true",
 
 function getWeatherFromLatLong(latitude, longitude) {
   var response;
-  var woeid = -1;
-  var query = encodeURI("select woeid from geo.placefinder where text=\""+latitude+","+longitude + "\" and gflags=\"R\"");
-  var url = "http://query.yahooapis.com/v1/public/yql?q=" + query + "&format=json";
+  var location_name = "";
+  var url = "http://nominatim.openstreetmap.org/reverse?format=json&lat=" + latitude + "&lon=" + longitude;
   var req = new XMLHttpRequest();
   req.open('GET', url, true);
   req.onload = function(e) {
@@ -84,8 +83,8 @@ function getWeatherFromLatLong(latitude, longitude) {
       if (req.status == 200) {
         response = JSON.parse(req.responseText);
         if (response) {
-          woeid = response.query.results.Result.woeid;
-          getWeatherFromWoeid(woeid);
+          location_name = response.display_name;
+          getWeatherFromLocation(location_name);
         }
       } else {
         console.log("Error");
