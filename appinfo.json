@@ -4,7 +4,7 @@
   "longName": "Simplicity inspired with weather",
   "companyName": "John Flanagan",
   "versionCode": 1,
-  "versionLabel": "1.1",
+  "versionLabel": "1.3",
   "capabilities": [
     "configurable"
   ],
@@ -119,7 +119,8 @@
     ]
   },
   "targetPlatforms": [
-    "aplite"
+    "aplite",
+    "basalt"
   ],
   "sdkVersion": "3"
 }

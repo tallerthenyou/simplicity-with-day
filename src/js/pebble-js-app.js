@@ -75,7 +75,7 @@ if (options === null) options = { "use_gps" : "true",
 function getWeatherFromLatLong(latitude, longitude) {
   var response;
   var location_name = "";
-  var url = "http://nominatim.openstreetmap.org/reverse?format=json&lat=" + latitude + "&lon=" + longitude;
+  var url = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude;
   var req = new XMLHttpRequest();
   req.open('GET', url, true);
   req.onload = function(e) {
@@ -83,11 +83,11 @@ function getWeatherFromLatLong(latitude, longitude) {
       if (req.status == 200) {
         response = JSON.parse(req.responseText);
         if (response) {
-          location_name = response.display_name;
+          location_name = response.results[0].formatted_address
           getWeatherFromLocation(location_name);
         }
       } else {
-        console.log("Error");
+        console.log("Error LatLong");
       }
     }
   }
@@ -112,7 +112,7 @@ function getWeatherFromLocation(location_name) {
           getWeatherFromWoeid(woeid);
         }
       } else {
-        console.log("Error");
+        console.log("Error Location");
       }
     }
   }
@@ -146,7 +146,7 @@ function getWeatherFromWoeid(woeid) {
           });
         }
       } else {
-        console.log("Error");
+        console.log("Error WOEID");
       }
     }
   }
